@@ -1,0 +1,34 @@
+<div class="modelo-container">
+  <h1>Resultados do modelo</h1>
+  
+  <div class="table-wrapper">
+    <table class="dados-table">
+      <thead>
+        <tr>
+          <th>Praça</th>
+          <th>Formato</th>
+          <th>Programa</th>
+          <th>Duração</th>
+          <th>Faixa Horária</th>
+          <th>Preço Sugerido</th>
+          <th>Preço Tabela</th>
+          <th>% Desconto</th>
+          <th>Confiança</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of dados">
+          <td>{{ item.praca }}</td>
+          <td>{{ item.formato }}</td>
+          <td>{{ item.programa }}</td>
+          <td>{{ item.duracao }}s</td>
+          <td>{{ item.faixaHoraria }}</td>
+          <td>R$ {{ item.precoSugerido | number:'1.2-2' }}</td>
+          <td>R$ {{ item.precoTabela | number:'1.2-2' }}</td>
+          <td>{{ item.percentualDesconto | number:'1.2-2' }}%</td>
+          <td>{{ item.confiancaModelo | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
