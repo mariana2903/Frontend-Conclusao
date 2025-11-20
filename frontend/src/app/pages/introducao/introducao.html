@@ -1,1 +1,94 @@
-<h1>Introdução</h1>
+<div class="prescritor-container">
+  
+  <!-- Filtros -->
+  <nav class="filter-nav">
+    <label for="month-selector">Selecione o Mês para Análise:</label>
+    <select 
+      id="month-selector" 
+      [value]="selectedMonth()"
+      (change)="onMonthChange($event)">
+      <option *ngFor="let month of uniqueMonths()" [value]="month.Mes">{{ month.Mes }}</option>
+    </select>
+  </nav>
+
+  <!-- Grid de Resultados -->
+  <div class="results-grid">
+    <p *ngIf="filteredData().length === 0" class="no-data">
+      Nenhum dado de prescrição encontrado para este mês.
+    </p>
+    
+    <div *ngFor="let item of filteredData()" class="card">
+      <!-- Cabeçalho do Card -->
+      <div class="card-header">
+        <h3>{{ item.Produto }}</h3>
+      </div>
+      
+      <!-- Corpo do Card -->
+      <div class="card-body">
+        <!-- Ação -->
+        <div class="info-block">
+          <span class="label">Ação Recomendada:</span>
+          <div class="action-badge" [ngClass]="getActionDetails(item.AcaoRecomendada).colorClasses">
+            <!-- Ícones SVG inline -->
+            <svg *ngIf="getActionDetails(item.AcaoRecomendada).iconName === 'up'" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+            <svg *ngIf="getActionDetails(item.AcaoRecomendada).iconName === 'down'" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17l5-5m0 0l-5-5m5 5H6"></path></svg>
+            <svg *ngIf="getActionDetails(item.AcaoRecomendada).iconName === 'pause'" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 10h4m-7 0a7 7 0 1114 0 7 7 0 01-14 0z"></path></svg>
+            
+            <span>{{ getActionDetails(item.AcaoRecomendada).text }}</span>
+          </div>
+        </div>
+
+        <!-- Faixa Sugerida -->
+        <div class="info-block">
+          <span class="label">Faixa Sugerida (R$/30s):</span>
+          <p class="value-highlight">{{ item.FaixaSugeridaR30s }}</p>
+        </div>
+
+        <!-- Faixa Praticada -->
+        <div class="info-block">
+          <span class="label">Faixa Praticada (Neste Mês R$/30s):</span>
+          <p class="value-normal">{{ item.FaixaPraticadaMesR30s }}</p>
+        </div>
+      </div>
+
+      <!-- Rodapé do Card -->
+      <div class="card-footer">
+        <h4>Justificativa do Modelo:</h4>
+        <div class="stats">
+          <div class="stat-row">
+            <span>Elasticidade (Beta):</span>
+            <span class="stat-value">{{ item.ElasticidadeBeta | number:'1.2-2' }}</span>
+          </div>
+          <div class="stat-row">
+            <span>Confiança (R²):</span>
+            <span [ngClass]="formatConfidence(item.ConfiancaR2).class">
+              {{ formatConfidence(item.ConfiancaR2).text }}
+            </span>
+          </div>
+          <div class="stat-row">
+            <span>Base de Dados (N):</span>
+            <span class="stat-value">{{ item.Observacoes }} dias</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accordion "Como Interpretar" -->
+  <footer class="accordion-section">
+    <button (click)="toggleAccordion()" class="accordion-btn">
+      <h2>Como Interpretar os Resultados?</h2>
+      <svg [class.rotate]="isAccordionOpen()" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+    <div class="accordion-content" [class.open]="isAccordionOpen()">
+      <div class="accordion-inner">
+        <p>Ação baseada na elasticidade (Beta) e nos preços praticados *nesse mês*.</p>
+        <ul>
+          <li><strong>Aumentar Preço (Inelástico):</strong> A demanda é pouco sensível ao preço. A faixa sugerida é [Média do Mês] até [Máx. do Mês + (Máx. do Mês - Média do Mês)].</li>
+          <li><strong>Reduzir Preço (Elástico):</strong> A demanda é muito sensível ao preço. A faixa sugerida é [Mín do Mês] até [Média do Mês] para ganhar volume.</li>
+          <li><strong>Manter / Analisar (Inconclusivo):</strong> O modelo não encontrou relação clara. Mantenha a faixa de preços praticada nesse mês.</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</div>

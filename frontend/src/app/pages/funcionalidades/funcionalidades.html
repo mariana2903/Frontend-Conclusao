@@ -1,80 +1,40 @@
-<div class="funcionalidades-container">
-  <h1>Upload</h1>
-  
-  <div class="upload-section">
-    <h2>Upload de Dados para o Modelo</h2>
-    <p class="description">Faça upload de um arquivo CSV com seus dados para processar no modelo</p>
+<div class="calendar-container">
+  <!-- Cabeçalho -->
+  <div class="calendar-header-row">
+    <h2>{{ currentMonthName() }}</h2>
+    <div class="nav-buttons">
+      <button (click)="changeMonth(-1)">&lt; Ant</button>
+      <button (click)="changeMonth(1)">Próx &gt;</button>
+    </div>
+  </div>
 
-    <div 
-      class="upload-area"
-      [class.dragging]="isDragging"
-      [class.has-file]="selectedFile"
-      [class.error]="uploadStatus === 'error'"
-      (dragover)="onDragOver($event)"
-      (dragleave)="onDragLeave($event)"
-      (drop)="onDrop($event)"
-    >
-      <div class="upload-content" *ngIf="!selectedFile">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-          <polyline points="17 8 12 3 7 8"></polyline>
-          <line x1="12" y1="3" x2="12" y2="15"></line>
-        </svg>
-        
-        <h3>Arraste seu arquivo aqui</h3>
-        <p>ou</p>
-        
-        <label for="file-input" class="file-button">
-          Selecione o arquivo
-          <input 
-            type="file" 
-            id="file-input" 
-            accept=".csv"
-            (change)="onFileSelected($event)"
-            hidden
-          >
-        </label>
-        
-        <p class="file-format">Formato aceito: <strong>CSV</strong></p>
-      </div>
+  <!-- Grid Calendário -->
+  <div class="calendar-grid">
+    <!-- Cabeçalho Dias da Semana -->
+    <div class="weekday-header">Dom</div>
+    <div class="weekday-header">Seg</div>
+    <div class="weekday-header">Ter</div>
+    <div class="weekday-header">Qua</div>
+    <div class="weekday-header">Qui</div>
+    <div class="weekday-header">Sex</div>
+    <div class="weekday-header">Sáb</div>
 
-      <div class="file-info" *ngIf="selectedFile && uploadStatus === 'success'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        
-        <div class="file-details">
-          <h4>{{ selectedFile.name }}</h4>
-          <p>{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
+    <!-- Dias -->
+    <div *ngFor="let day of calendarDays()" 
+         class="day-cell" 
+         [class.other-month]="!day.isCurrentMonth">
+      
+      <div class="day-number">{{ day.date.getDate() }}</div>
+      
+      <div class="prices-list">
+        <div *ngFor="let price of day.prices" 
+             class="price-badge" 
+             [title]="price.produto + ': R$ ' + price.precoMedioDia.toFixed(2)">
+          {{ price.produto.split('_')[0] }}: R$ {{ price.precoMedioDia | number:'1.0-0' }}
         </div>
-        
-        <button class="remove-button" (click)="removeFile()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
-      <div class="error-message" *ngIf="uploadStatus === 'error'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <h4>Formato inválido</h4>
-        <p>Por favor, selecione um arquivo CSV válido</p>
-        <button class="retry-button" (click)="removeFile()">Tentar novamente</button>
       </div>
     </div>
-
-    <button 
-      class="process-button" 
-      *ngIf="selectedFile && uploadStatus === 'success'"
-      (click)="processFile()"
-    >
-      Processar Arquivo
-    </button>
   </div>
+  
+  <p class="footer-note">* Os dados do calendário são carregados de um endpoint separado (/api/precos-diarios).</p>
 </div>

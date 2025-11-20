@@ -1,41 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
-import { PriceService, PriceRecommendation } from '../../services/price.service';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })
 export class Home implements OnInit {
-  recommendations: PriceRecommendation[] = [];
-  loading = false;
-  error = '';
+  currentUser = 'Parceiro';
+  activePage = 'dashboard'; // dashboard | calendar | overview
 
-  constructor(private priceService: PriceService) { }
-
-  ngOnInit(): void {
-    
+  constructor(private router: Router) {
+    // Atualiza a página ativa baseado na rota atual
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const url = event.urlAfterRedirects;
+      if (url.includes('introducao')) this.activePage = 'dashboard'; // Prescritor
+      else if (url.includes('funcionalidades')) this.activePage = 'calendar'; // Calendário
+      else if (url.includes('modelo')) this.activePage = 'overview'; // Visão Geral
+    });
   }
 
-  loadRecommendations(): void {
-    this.loading = true;
-    this.error = '';
-    
-    this.priceService.getRecommendations().subscribe({
-      next: (data: PriceRecommendation[]) => {
-        this.recommendations = data.filter(rec => rec.formato != "ENCAIXE AVULSO");
-        this.loading = false;
-      },
-      error: (err: any) => {
-        this.error = 'Erro ao carregar recomendações';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+  ngOnInit(): void {}
+
+  logout(): void {
+    this.router.navigate(['/login']);
+  }
+  
+  getPageTitle(): string {
+    switch(this.activePage) {
+      case 'dashboard': return 'Prescritor de Preços';
+      case 'calendar': return 'Calendário de Preços';
+      case 'overview': return 'Visão Geral';
+      default: return 'Dashboard';
+    }
   }
 }

@@ -1,34 +1,88 @@
-<div class="modelo-container">
-  <h1>Resultados do modelo</h1>
+<div class="overview-container">
   
-  <div class="table-wrapper">
-    <table class="dados-table">
-      <thead>
-        <tr>
-          <th>Praça</th>
-          <th>Formato</th>
-          <th>Programa</th>
-          <th>Duração</th>
-          <th>Faixa Horária</th>
-          <th>Preço Sugerido</th>
-          <th>Preço Tabela</th>
-          <th>% Desconto</th>
-          <th>Confiança</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of dados">
-          <td>{{ item.praca }}</td>
-          <td>{{ item.formato }}</td>
-          <td>{{ item.programa }}</td>
-          <td>{{ item.duracao }}s</td>
-          <td>{{ item.faixaHoraria }}</td>
-          <td>R$ {{ item.precoSugerido | number:'1.2-2' }}</td>
-          <td>R$ {{ item.precoTabela | number:'1.2-2' }}</td>
-          <td>{{ item.percentualDesconto | number:'1.2-2' }}%</td>
-          <td>{{ item.confiancaModelo | number:'1.2-2' }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <h3>Produtos Modelados (Total)</h3>
+      <p class="kpi-value">{{ kpiTotalProdutos() }}</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Produto Mais Elástico (Sensível)</h3>
+      <p class="kpi-value text-yellow">{{ kpiProdutoMaisElastico().name }}</p>
+      <span class="kpi-sub">Beta: {{ kpiProdutoMaisElastico().avgBeta | number:'1.2-2' }}</span>
+    </div>
+    <div class="kpi-card">
+      <h3>Produto Mais Inelástico (Rígido)</h3>
+      <p class="kpi-value text-green">{{ kpiProdutoMaisInelastico().name }}</p>
+      <span class="kpi-sub">Beta: {{ kpiProdutoMaisInelastico().avgBeta | number:'1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Elasticidade (Beta) por Produto (Média)</h3>
+      <div class="chart-wrapper">
+        <ngx-charts-bar-vertical
+          [results]="chartDataElasticidade()"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Produto"
+          yAxisLabel="Beta de Elasticidade"
+          [scheme]="colorSchemeElasticidade">
+        </ngx-charts-bar-vertical>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Confiança (R²) por Produto (Média)</h3>
+      <div class="chart-wrapper">
+        <ngx-charts-bar-vertical
+          [results]="chartDataConfianca()"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          yAxisLabel="Confiança (R²)"
+          [yScaleMax]="1"
+          [scheme]="colorSchemeConfianca">
+        </ngx-charts-bar-vertical>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela Completa -->
+  <div class="table-card">
+    <h3>Tabela de Dados Completa</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Produto</th>
+            <th>Beta</th>
+            <th>Confiança (R²)</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="allDataSorted().length === 0">
+            <td colspan="5" class="text-center">Carregando dados...</td>
+          </tr>
+          <tr *ngFor="let item of allDataSorted()">
+            <td>{{ item.Mes }}</td>
+            <td class="font-medium">{{ item.Produto }}</td>
+            <td [class.text-yellow]="item.ElasticidadeBeta < -1"
+                [class.text-green]="item.ElasticidadeBeta >= -1 && item.ElasticidadeBeta < 0">
+              {{ item.ElasticidadeBeta | number:'1.2-2' }}
+            </td>
+            <td>{{ item.ConfiancaR2 | number:'1.0-2' }}</td>
+            <td>{{ item.AcaoRecomendada }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

@@ -13,12 +13,15 @@ import { Router } from '@angular/router';
 export class Login {
   email: string = '';
   password: string = '';
+  error: string | null = null;
 
   constructor(private router: Router) {}
 
   onLogin(): void {
-    if (this.email && this.password) {
+    if (this.email === 'gazeta' && this.password === '1234') {
       this.router.navigate(['/introducao']);
+    } else {
+      this.error = 'Usuário ou senha inválidos.';
     }
   }
 }

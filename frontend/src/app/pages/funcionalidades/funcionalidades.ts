@@ -1,62 +1,78 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MockDataService } from '../../services/mock-data.service';
+import { IMockDailyPrice, ICalendarDay } from '../../data.interfaces';
 
 @Component({
   selector: 'app-funcionalidades',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './funcionalidades.html',
   styleUrl: './funcionalidades.scss'
 })
-export class Funcionalidades {
-  selectedFile: File | null = null;
-  isDragging = false;
-  uploadStatus: 'idle' | 'success' | 'error' = 'idle';
+export class Funcionalidades implements OnInit {
+  dailyPrices = signal<IMockDailyPrice[]>([]);
+  currentDate = signal(new Date());
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.handleFile(input.files[0]);
+  currentMonthName = computed(() => {
+    return this.currentDate().toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+  });
+
+  calendarDays = computed(() => {
+    const date = this.currentDate();
+    return this.getCalendarDays(date.getFullYear(), date.getMonth());
+  });
+
+  constructor(private mockService: MockDataService) {}
+
+  ngOnInit() {
+    this.mockService.getDailyPrices().subscribe(data => {
+      this.dailyPrices.set(data);
+      // Força atualização do calendário
+      this.currentDate.update(d => new Date(d));
+    });
+  }
+
+  changeMonth(delta: number): void {
+    this.currentDate.update(d => {
+      const newDate = new Date(d);
+      newDate.setMonth(newDate.getMonth() + delta);
+      return newDate;
+    });
+  }
+
+  private getCalendarDays(year: number, month: number): ICalendarDay[] {
+    const days: ICalendarDay[] = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDayOfWeek = firstDay.getDay(); // 0=Dom
+    const totalDays = lastDay.getDate();
+
+    // Dias mês anterior
+    for (let i = 0; i < startDayOfWeek; i++) {
+      const d = new Date(year, month, 0 - (startDayOfWeek - 1 - i));
+      days.push({ date: d, isCurrentMonth: false, prices: this.getPricesForDate(d) });
     }
-  }
 
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragging = true;
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragging = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isDragging = false;
-    
-    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      this.handleFile(event.dataTransfer.files[0]);
+    // Dias mês atual
+    for (let i = 1; i <= totalDays; i++) {
+      const d = new Date(year, month, i);
+      days.push({ date: d, isCurrentMonth: true, prices: this.getPricesForDate(d) });
     }
-  }
 
-  handleFile(file: File): void {
-    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-      this.selectedFile = file;
-      this.uploadStatus = 'success';
-    } else {
-      this.selectedFile = null;
-      this.uploadStatus = 'error';
+    // Dias mês seguinte
+    while (days.length < 42) {
+      const last = days[days.length - 1].date;
+      const d = new Date(last);
+      d.setDate(d.getDate() + 1);
+      days.push({ date: d, isCurrentMonth: false, prices: this.getPricesForDate(d) });
     }
+
+    return days;
   }
 
-  removeFile(): void {
-    this.selectedFile = null;
-    this.uploadStatus = 'idle';
-  }
-
-  processFile(): void {
-    if (this.selectedFile) {
-      console.log('Processando arquivo:', this.selectedFile.name);
-      alert('Arquivo enviado com sucesso! (simulação)');
-    }
+  private getPricesForDate(date: Date): IMockDailyPrice[] {
+    const dateStr = date.toISOString().split('T')[0];
+    return this.dailyPrices().filter(p => p.data === dateStr);
   }
 }
