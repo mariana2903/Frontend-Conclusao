@@ -41,14 +41,14 @@ export class MockDataService {
       return {
         Mes: fullMonth,
         MesNumero: item.mes_num,
-        Produto: item.produto_duracao,
+        Produto: item.produto_chave_original,
         ElasticidadeBeta: item.beta_elasticidade,
         ConfiancaR2: item.r_quadrado_mes,
         Observacoes: item.n_obs_mes,
         AcaoRecomendada: item.acao_recomendada,
         // Mapeando as propriedades com nomes especiais usando notação de colchetes
-        FaixaSugeridaR30s: item['faixa_sugerida_R$_30s'],
-        FaixaPraticadaMesR30s: item['faixa_praticada_MES_R$_30s']
+        FaixaSugerida: item['faixa_sugerida_R$_duracao'],
+        FaixaPraticadaMes: item['faixa_praticada_MES_R$_duracao']
       };
     });
   }

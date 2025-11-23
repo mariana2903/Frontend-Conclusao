@@ -6,8 +6,8 @@ export interface IPrescriptionData {
   ConfiancaR2: number;
   Observacoes: number; // N
   AcaoRecomendada: string;
-  FaixaSugeridaR30s: string;
-  FaixaPraticadaMesR30s: string;
+  FaixaSugerida: string;
+  FaixaPraticadaMes: string;
 }
 
 export interface IMockDailyPrice {
