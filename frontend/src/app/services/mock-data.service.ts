@@ -64,15 +64,12 @@ export class MockDataService {
       
       this.dailyPrices.push({
         data: dateStr,
-        produto: 'RÁDIO_FM',
-        precoMedioDia: 20 + Math.random() * 5
+        produto: 'Rádio Litoral Vitória',
+        precoMedioDia: "R$ 133.05 – R$ 151.95",
+        formato: 'Rotativo 07-19h'
       });
-      
-      this.dailyPrices.push({
-        data: dateStr,
-        produto: 'TV_SUL',
-        precoMedioDia: 100 + Math.random() * 20
-      });
+   
+     
     }
   }
 

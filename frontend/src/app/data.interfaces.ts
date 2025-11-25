@@ -13,7 +13,8 @@ export interface IPrescriptionData {
 export interface IMockDailyPrice {
   data: string; // YYYY-MM-DD
   produto: string;
-  precoMedioDia: number;
+  precoMedioDia: string;
+  formato: string;
 }
 
 export interface IActionDetails {
