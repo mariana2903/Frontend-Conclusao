@@ -28,11 +28,20 @@
       
       <div class="prices-list">
         <div *ngFor="let price of day.prices" 
-             class="price-badge" 
-             [title]="price.produto + ': R$ ' + price.precoMedioDia.toFixed(2)">
-          {{ price.produto.split('_')[0] }}: R$ {{ price.precoMedioDia | number:'1.0-0' }}
+            class="price-badge"
+            [title]="price.produto + ': ' + price.precoMedioDia">
+          {{ price.produto.split('_')[0] }}: 
+          <div>
+            {{ price.formato }}
+          </div>
+          <div>
+            {{ price.precoMedioDia }}
+          </div>
+
         </div>
       </div>
+
+      
     </div>
   </div>
   
